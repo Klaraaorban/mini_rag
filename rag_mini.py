@@ -1,5 +1,6 @@
 import torch
 import logging
+import gradio as gr
 from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline, BitsAndBytesConfig
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
@@ -88,10 +89,13 @@ def query_rag(question):
         logger.warning("Status: Judge REJECTED the answer (Hallucination/Out of Context).")
         return "The system could not verify this answer against the source material."
 
+def launch_gui(message, history):
+    return query_rag(message)
+
 if __name__ == "__main__":
-    while True:
-        user_input = input("\n> ")
-        if user_input.lower() in ['exit', 'quit']: break
-        
-        response = query_rag(user_input)
-        print(f"\nFinal Response: {response}")
+    demo = gr.ChatInterface(
+        fn=launch_gui,
+        title="Minimalistic RAG",
+        description="Ask questions about ML."
+    )
+    demo.launch(share=False)
